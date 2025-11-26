@@ -78,15 +78,15 @@ fn walk(node: Node, keep: &mut Vec<(usize, usize)>) {
     let kind = node.kind();
 
     match kind {
-        // Comments: keep the whole node.
+        // Comments: keep the whole node, except for comment character
         "comment" => {
-            keep.push((node.start_byte(), node.end_byte()));
+            keep.push((node.start_byte() + 1, node.end_byte()));
         }
 
-        // String content only (no quotes/prefixes):
+        //  String content only (no quotes/prefixes):
         "string_content" => {
-            keep.push((node.start_byte(), node.end_byte()));
-        }
+             keep.push((node.start_byte(), node.end_byte()));
+         }
 
         // Skip f-string expressions and everything else.
         _ => {}
