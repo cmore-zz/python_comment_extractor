@@ -1,13 +1,32 @@
 use tree_sitter::{Parser, Node};
 use std::env;
 use std::fs;
+use std::io::{self, Read};
+
+
+
+fn read_source(filename: &str) -> io::Result<String> {
+    if filename == "-" {
+        let mut buf = String::new();
+        io::stdin().read_to_string(&mut buf)?;
+        Ok(buf)
+    } else {
+        fs::read_to_string(filename)
+    }
+}
 
 fn main() {
-    let filename = env::args()
-        .nth(1)
-        .expect("Usage: pytext-extract <file.py>");
+    let mut args = env::args();
+    let prog = args.next().unwrap_or("program".to_string());
 
-    let source = fs::read_to_string(&filename)
+    let filename = args
+        .next()
+        .unwrap_or_else(|| {
+            eprintln!("Usage: {} <file.py>\n(Use \"-\" to read from stdin.)", prog);
+            std::process::exit(1);
+        });
+
+    let source = read_source(&filename)
         .expect("Failed to read file");
 
     let mut parser = Parser::new();
